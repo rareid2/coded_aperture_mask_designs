@@ -145,4 +145,21 @@ def plot_output(mask, decode, boxdim, nElements, mask_size, mosaic, holes_inv, g
         f.close()
         plt.savefig(os.path.join(cwd,fpath+str(nElements)+fm+'MURA_deocde_fromfile.png'))
         plt.clf()
-        #  --------------- --------------- --------------- ---------------
+
+def pinhole(size,boxsize):
+    # generate file that has a box everywhere
+    with open('MURA_designs/%dMURA_matrix_%0.2f.txt' %(boxsize, size), 'w') as fp:
+
+        nboxes = size // boxsize
+        locs = []
+        for nx in np.arange(0,size,boxsize):
+            for ny in np.arange(0,size,boxsize):
+                if (size-boxsize) / nx == 2.0 and (size-boxsize) / ny == 2.0:
+                    print(nx,ny)
+                else:
+                    fp.write(str(round(nx, 4)) + "," + str(round(ny, 4)) + "\n")
+        print('Done')
+    fp.close()
+
+
+    #  --------------- --------------- --------------- ---------------
