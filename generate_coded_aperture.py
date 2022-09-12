@@ -148,7 +148,7 @@ def plot_output(mask, decode, boxdim, nElements, mask_size, mosaic, holes_inv, g
 
 def pinhole(size,boxsize):
     # generate file that has a box everywhere
-    with open('MURA_designs/%dMURA_matrix_%0.2f.txt' %(boxsize, size), 'w') as fp:
+    with open('MURA_designs/%dMURA_matrix_%0.2f.txt' %(1, size), 'w') as fp:
 
         nboxes = size // boxsize
         locs = []
