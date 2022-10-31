@@ -42,7 +42,7 @@ for element, rho, color in zip(strings_files, densities, colors):
             # save energy and range
             energies.append(float(line_split[0]))
             # convert range from cm^2 / g to cm by multiplying by rho and inverting
-            ranges.append( 1 / (float(line_split[1])  * rho))
+            ranges.append( 1 / (float(line_split[2])  * rho))
     
     # convert range and energy
     ranges = np.array(ranges)*10000 # convert to um
