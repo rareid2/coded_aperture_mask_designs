@@ -4,9 +4,6 @@ from generate_coded_aperture import generate_CA, pinhole
 # create MURA - first set rank
 nElements = 67
 
-# set desired mask size in mm
-mask_size = 14.08  # mm
-
 # mosaicked mask? 
 mosaic = True
 
@@ -17,19 +14,25 @@ generate_files = True
 holes_inv = True 
 
 # generate plots to check accuracy
-check_plots = False
+check_plots = True
 
 # timepix design
 det_size_cm = 1.408
 
-# loop through rank options (primes)
-n_elements_original = [7, 11, 17, 31]  # n elements no mosaic
-multiplier = [36, 22,14,8]
+# n elements in the original coded aperture pattern
+n_elements_original = [7, 11, 17, 31] 
+
+# number of pixels to be used for one element
+pixels_downsample = [36, 22, 14, 8]
+
+# size of timepix pixel
 pixel = 0.055 # mm
 
+# size of 
 element_size_mm_list = [
-    pixel * mult for mult in multiplier
+    pixel * ps for ps in pixels_downsample
 ]  # element size in mm
+
 n_elements_list = [
     (ne * 2) - 1 for ne in n_elements_original
 ]  # total number of elements
@@ -40,4 +43,10 @@ for nElements, element_size_mm, mask_size in zip(
             n_elements_original, element_size_mm_list, mask_size_list
         ):
     generate_CA(nElements, mask_size, mosaic, holes_inv, generate_files, check_plots)
-pinhole(14.08, 1.76/2)
+    continue
+
+# to generate a pinhole, set the size of the mask and the size of the pinhole
+mask_size = 14.08 # mm
+# pinhole size
+pinhole_size = 1.76 # mm
+pinhole(mask_size, pinhole_size, plot=True)

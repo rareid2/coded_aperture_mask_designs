@@ -146,20 +146,46 @@ def plot_output(mask, decode, boxdim, nElements, mask_size, mosaic, holes_inv, g
         plt.savefig(os.path.join(cwd,fpath+str(nElements)+fm+'MURA_deocde_fromfile.png'))
         plt.clf()
 
-def pinhole(size,boxsize):
+def pinhole(size,boxsize, plot=False):
+
+    boxsize = boxsize / 2
     # generate file that has a box everywhere
     with open('MURA_designs/1MURA_matrix_%0.2f.txt' %(size), 'w') as fp:
 
-        nboxes = size // boxsize
-        locs = []
         for nx in np.arange(0,size,boxsize):
             for ny in np.arange(0,size,boxsize):
                 if (size) / nx == 2.0 and (size) / ny == 2.0:
                     print(nx,ny)
+                elif size / (nx+boxsize) == 2.0 and (size) / (ny+boxsize) == 2.0:
+                    print(nx,ny)
+                elif size / (nx+boxsize) == 2.0 and (size) / ny == 2.0:
+                    print(nx,ny)
+                elif size / (nx) == 2.0 and (size) / (ny+boxsize) == 2.0:
+                    print(nx,ny)
                 else:
                     fp.write(str(round(nx, 4)) + "," + str(round(ny, 4)) + "\n")
-        print('Done')
+        print('file created')
+
     fp.close()
 
+
+    # open file
+    f = open('MURA_designs/1MURA_matrix_%0.2f.txt' %(size), 'r')
+    lines = f.readlines()
+    hole_loc = []
+
+    # read in lines to add holes
+    for line in lines:
+        holes = line.split(',')
+        holes_int = [float(ho) for ho in holes]
+        hole_loc.append(holes_int)
+    for hl in hole_loc:
+        # add hole at specified locations
+        rectangle = plt.Rectangle((hl[0],hl[1]), boxsize, boxsize, fc='black')
+        plt.gca().add_patch(rectangle)
+    plt.axis('scaled')
+    f.close()
+
+    plt.savefig('MURA_designs/1MURA_matrix_%0.2f.png' %(size))
 
     #  --------------- --------------- --------------- ---------------
