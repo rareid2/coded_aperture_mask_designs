@@ -23,7 +23,7 @@ fig = plt.figure()
 colors = ['#88DAE7', '#0B2D32']
 
 # loop through each element
-for element, rho, color in zip(strings_files, densities, colors):
+for element, rho, color in zip(strings_files[:1], densities[:1], colors[:1]):
     # find data file
     fname = 'stopping_power_data/stoppingpower_%s_photon.txt' %(element)
     file1 = open(fname, 'r')
@@ -42,26 +42,28 @@ for element, rho, color in zip(strings_files, densities, colors):
             # save energy and range
             energies.append(float(line_split[0]))
             # convert range from cm^2 / g to cm by multiplying by rho and inverting
-            ranges.append( 1 / (float(line_split[2])  * rho))
+            ranges.append( (float(line_split[2])))# * rho))
     
     # convert range and energy
-    ranges = np.array(ranges)*10000 # convert to um
+    ranges = np.array(ranges)#*10000 # convert to um
     energies = np.array(energies)*1000 # convert to keV
 
     # finally, plot the result
     plt.loglog(energies,ranges,label=element,color=color)
  
-plt.legend()
-plt.xlim([10**0,10**4])
-plt.ylim([10**0,10**5.5])
-plt.xlabel('Energy [keV]')
-plt.ylabel('Range [um]')
-plt.title('Photon Stopping Power')
+#plt.legend()
+plt.xlim([10**1,10**4])
+plt.ylim([10**-2,10**2])
+plt.xlabel('X-ray Energy [keV]')
+plt.ylabel('Mass Attenuation Coefficient [cm2/g]')
+#plt.title('Photon Stopping Power')
 
+"""
 plt.text(x=278.5, y=510, s='standard medipix thickness')
 plt.hlines(500,10**0,10**4, linewidth=1, linestyles='--', color='Gray',zorder=3)
 
 plt.text(x=10, y=1270, s='thickness of tungsten mask from grant')
 plt.hlines(1250,10**0,10**4, linewidth=1, linestyles='--', color='Gray',zorder=3)
+"""
 
 plt.savefig('stopping_power_data/range_photons.png',dpi=300)

@@ -80,8 +80,8 @@ def makeMURA(gridSizeX,boxSize,holes_inv,generate_files=True):
 
                     
                     if block == block_check:
-                        f.write(str(round(boxLocArrayX, 4)) + "," 
-                                + str(round(boxLocArrayY, 4)) + "\n")
+                        f.write(str(round(boxLocArrayX, 8)) + "," 
+                                + str(round(boxLocArrayY, 8)) + "\n")
 
                         MURAmatrix[i,j] = 1;
     else:
@@ -215,8 +215,8 @@ def make_mosaic_MURA(gridSizeX,boxSize,holes=True,generate_files=False):
                                 #print(boxLocArrayX,boxLocArrayY,gridSizeX*boxSize*2)
 
                                 # shift the boxSize left by one so that everything lines up w origin
-                                f.write(str(round(boxLocArrayX-boxSize, 4)) + "," 
-                                        + str(round(boxLocArrayY, 4)) + "\n")
+                                f.write(str(round(boxLocArrayX-boxSize, 8)) + "," 
+                                        + str(round(boxLocArrayY, 8)) + "\n")
             f.close()
             d.close()
         
@@ -308,3 +308,53 @@ def get_decoder_MURA(mask,rank,holes_inv,check):
 
 
 # ------------------------------------------------------------------------------
+
+# code to generate a no two holes touching mask from original mask pattern
+
+def make_NTHT(mask, mosiac):
+    
+    newMask = np.array([]);
+    zArray_column = np.zeros([np.size(mask, 0),1]);
+
+    newMask = mask[:,0];
+    newMask = np.column_stack( (newMask, np.zeros([len(newMask),1])) );
+    for i in range( 1, len(mask) ):
+        newMask = np.column_stack( (newMask, mask[:,i]) );
+        if i % 1 == 0:
+            newMask = np.column_stack( (newMask, zArray_column) );
+
+    zArray_row = np.zeros([np.size(newMask, 1), 1]);
+    newMask = np.insert(newMask, [i for i in range(0, len(mask)) if i % 1 == 0], zArray_row.T, axis=0);
+
+    return newMask
+
+# -------------------------------------------------------------------------------------------------------
+
+def make_svg(build_file,fname,boxdim,mask_size):
+    import svgwrite
+
+    # scale everything
+    # 1 pixel = 1 block
+    sizex = mask_size
+    sizey = mask_size
+
+    svg_document = svgwrite.Drawing(filename = fname,
+                                    size = ("%.2fpx" % sizex, "%.2fpx" % sizey))
+
+    svg_document.add(svg_document.rect(insert=(0, 0), size=('100%', '100%'), rx=None, ry=None, fill='black'))
+
+
+    # open file
+    f = open(build_file, "r")
+    lines = f.readlines()
+    hole_loc = []
+
+    # read in lines to add holes
+    for line in lines:
+        holes = line.split(',')
+        holes_int = [float(ho) for ho in holes]
+        hole_loc.append(holes_int)
+    for hl in hole_loc:
+        svg_document.add(svg_document.rect(insert=(hl[0], (sizey - boxdim) - hl[1]), size=('4.7619047619%', '4.7619047619%'), rx=None, ry=None, fill='white'))
+
+    svg_document.save()
