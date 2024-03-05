@@ -23,7 +23,7 @@ fig = plt.figure()
 colors = ['#BBEAF1', '#88DAE7', '#56CADC', '#27A6B9', '#1D7887', '#0B2D32']
 
 # loop through each element
-for element, rho, color in zip(strings_files[2:3], densities[2:3], colors[2:3]):
+for element, rho, color in zip(strings_files[-1:], densities[-1:], colors[2:3]):
     # find data file
     fname = 'stopping_power_data/stoppingpower_%s.txt' %(element)
     file1 = open(fname, 'r')
@@ -42,14 +42,22 @@ for element, rho, color in zip(strings_files[2:3], densities[2:3], colors[2:3]):
             # save energy and range
             energies.append(float(line_split[0]))
             # convert range from g/cm^2 to cm by diving by rho
-            ranges.append(float(line_split[1]))# /rho)
+            ranges.append(float(line_split[1]) /rho)
     
     # convert range and energy
-    ranges = np.array(ranges)#*10 # convert to mm
+    ranges = np.array(ranges)*10 # convert to mm
     energies = np.array(energies)*1000 # convert to keV
 
     # finally, plot the result
     plt.loglog(energies,ranges,label=element,color=color)
+
+    # how much would 500 um get me
+
+for i,r in enumerate(ranges):
+    # 300 um
+    if 0.25 < r < 0.35:
+        print(r,energies[i])
+
 
 
 #plt.ylim([10**-2,10**1])
@@ -61,19 +69,6 @@ plt.xlim([10**1,10**4])
 
 #plt.ylim([10**3.477,10**3.5])
 
-"""
-plt.text(x=27.3, y=7.4, s='MEPED')
-plt.scatter(x=27.3, y=7.4, s=10, color='DarkSlateGray',zorder=3)
-
-plt.text(x=23.55, y=10, s='ELFIN')
-plt.scatter(x=23.55, y=10, s=10, color='DarkSlateGray',zorder=3)
-
-plt.text(x=42.5, y=16, s='FIREBIRD')
-plt.scatter(x=42.5, y=16, s=10, color='DarkSlateGray',zorder=3)
-
-plt.text(x=278.5, y=500, s='REPTile')
-plt.scatter(x=278.5, y=500, s=10, color='DarkSlateGray',zorder=3)
-"""
-plt.ylabel('CSDA range [g/cm2]')
+plt.ylabel('mm')
 plt.xlabel('electron energy [keV]')
 plt.savefig('stopping_power_data/range_prospectus.png',dpi=300)

@@ -6,31 +6,28 @@ from util_fncs import make_svg
 # to create a MURA
 
 # mosaicked mask?
-mosaic = False
+mosaic = True
 
 # generate output files, construction file generates locations in cm
 generate_files = True
 
 # generate a construction file with location of holes (false) or location of blocks (true)
-holes_inv = False
+holes_inv = True
 
 # generate plots to check accuracy
 check_plots = True
 
 # timepix design
-det_size_cm = 3.05
+det_size_cm = 4.941  # cm
 
 # n elements in the original coded aperture pattern
-n_elements_original = [7, 11, 17, 31]
 n_elements_original = [61]
 
-
 # number of pixels to be used for one element
-pixels_downsample = [36, 22, 14, 8]
 pixels_downsample = [1]
 
 # size of timepix pixel
-pixel = 0.5  # cm
+pixel = 0.81  # mm
 
 element_size_mm_list = [pixel * ps for ps in pixels_downsample]  # element size in mm
 
@@ -49,11 +46,10 @@ for nElements, mask_size in zip(n_elements_original, mask_size_list):
 
 """
 # to generate a pinhole, set the size of the mask and the size of the pinhole
-mask_size = 14.08  # mm
+mask_size = 21.6  # mm
 # pinhole size
-pinhole_size = 1.76 / 4  # mm
+pinhole_size = 0.6 # mm
 pinhole(mask_size, pinhole_size, plot=True)
-
 
 # --------------- --------------- --------------- ---------------
 
@@ -100,4 +96,25 @@ for nElements, mask_size in zip(
             n_elements_original, mask_size_list
         ):
     generate_NTHT_mask(nElements, mask_size, mosaic, holes_inv=False, generate_files=True, check_plots=True)
+"""
+
+
+"""
+# symmetry test
+print(mask)
+print("swap")
+print(1 - mask)
+print("rotate")
+print(np.rot90(mask))
+print(np.array_equal(np.rot90(mask), 1 - mask))
+unequal_mask = (1 - mask) != np.rot90(mask)
+
+# Find the indices of unequal elements
+unequal_indices = np.argwhere(unequal_mask)
+print(unequal_indices)
+x = 1 - mask
+print(x[30, 30])
+print(np.rot90(mask)[30, 30])
+
+# so 67 IS symmetric
 """

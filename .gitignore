@@ -1,1 +1,5 @@
 __pycache__/*
+MURA_designs/*
+stopping_power_data/*
+*.ipynb
+.vscode/*

@@ -66,6 +66,8 @@ def makeMURA(gridSizeX, boxSize, holes_inv, generate_files=True):
     MURAmatrix = np.zeros([gridSizeX, gridSizeY])
     MURAdecodeMatrix = -np.ones([gridSizeX, gridSizeY])
 
+    mask = updated_get_mask(gridSizeX)
+
     if generate_files:
         with open(fpath + str(gridSizeX) + "MURA_matrix.txt", "w") as f, open(
             fpath + str(gridSizeX) + "MURA_decode_matrix.txt", "w"
@@ -73,7 +75,8 @@ def makeMURA(gridSizeX, boxSize, holes_inv, generate_files=True):
             d.write("i,j,d\n")
             for i in range(0, gridSizeX):
                 for j in range(0, gridSizeY):
-                    block = MURA_code(i, j, gridSizeX)
+                    # block = MURA_code(i, j, gridSizeX)
+                    block = mask[i, j]
                     decode = MURA_decoding_matrix(i, j, block)
                     MURAdecodeMatrix[i, j] = decode
 
@@ -481,6 +484,94 @@ def updated_get_decoder(rank):
     )
 
     return decoder
+
+
+def updated_get_mask(rank):
+    # check if rank is prime
+    if is_prime(rank) == False:
+        print("MUST INPUT PRIME")
+        return
+
+    """
+        1. create an array from 1 to rank
+        2. square each element
+        3. find remainder of each squared element divided by the rank (quadratic residue)
+        4. create an array from 0 to rank-1
+        5. check for each element of the 0 to rank-1 array if that element is in the quad residue array from step 3
+        6. convert the result to -1 (not in the array) to 1 (in the array)
+    """
+    ci = np.isin(np.arange(rank), np.mod(np.arange(1, rank + 1) ** 2, rank)) * 2 - 1
+
+    # take the outer product of ci and ci transpose
+    # add 1 to each element
+    # divide result by 2
+    a = ((ci[:, np.newaxis] @ ci[np.newaxis, :]) + 1) / 2
+
+    # replace the first column with all 1s
+    a[:, 0] = np.ones((rank,))
+
+    # and the first row with all 0s
+    a[0, :] = np.zeros((rank,))
+
+    # now create g from this
+    g = a * 2 - 1
+
+    # replace first element with 1 for MURA
+    g[0, 0] = 1
+
+    # center a and g
+    a = shift(a, rank // 2 - 1, rank // 2 - 1)
+    g = shift(g, rank // 2 - 1, rank // 2 - 1)
+
+    mask = a
+    decoder = g
+
+    symmetry = np.prod(ci[[1, rank - 1]])
+
+    npm = np.shape(mask)
+
+    mosaic_mask = np.concatenate(
+        [
+            mask[int(np.ceil(npm[0] / 2)) : npm[0], int(np.ceil(npm[1] / 2)) : npm[1]],
+            mask[int(np.ceil(npm[0] / 2)) : npm[0], :],
+            mask[int(np.ceil(npm[0] / 2)) : npm[0], : int(np.floor(npm[1] / 2))],
+        ],
+        axis=1,
+    )
+
+    mosaic_mask = np.concatenate(
+        [
+            mosaic_mask,
+            np.concatenate(
+                [
+                    mask[:, int(np.ceil(npm[1] / 2)) : npm[1]],
+                    mask,
+                    mask[:, : int(np.floor(npm[1] / 2))],
+                ],
+                axis=1,
+            ),
+        ],
+        axis=0,
+    )
+
+    mosaic_mask = np.concatenate(
+        [
+            mosaic_mask,
+            np.concatenate(
+                [
+                    mask[
+                        : int(np.floor(npm[0] / 2)), int(np.ceil(npm[1] / 2)) : npm[1]
+                    ],
+                    mask[: int(np.floor(npm[0] / 2)), :],
+                    mask[: int(np.floor(npm[0] / 2)), : int(np.floor(npm[1] / 2))],
+                ],
+                axis=1,
+            ),
+        ],
+        axis=0,
+    )
+
+    return mask
 
 
 def is_prime(x):

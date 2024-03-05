@@ -6,6 +6,7 @@ import os
 # import functions to create matrices
 from util_fncs import *
 
+
 # --------------- --------------- --------------- ---------------
 def generate_CA(nElements, mask_size, mosaic, holes_inv, generate_files, check_plots):
     # calculate element size for mask in mm
@@ -96,38 +97,57 @@ def plot_output(
     fig = plt.figure(figsize=(8, 6))
     ax = fig.add_subplot(111)
 
-    cmap = matplotlib.colors.ListedColormap(["white", "#2D1E2F"])
-    plt.imshow(mask, cmap=cmap, origin="lower")
-    if mosaic:
-        plt.xlim([0, nElements * 2 - 1])
-        plt.ylim([0, nElements * 2 - 1])
-    else:
-        plt.xlim([0, nElements])
-        plt.ylim([0, nElements])
-    plt.colorbar()
-    plt.title("%i Element MURA" % nElements)
+    cmap = matplotlib.colors.ListedColormap(["#FF000000", "#160C1D"])
+    plt.imshow(mask, cmap=cmap, origin="upper")
+    # cmap.set_under(alpha=0)
+    # if mosaic:
+    #    plt.xlim([0, nElements * 2 - 1])
+    #    plt.ylim([0, nElements * 2 - 1])
+    # else:
+    #    plt.xlim([0, nElements])
+    #    plt.ylim([0, nElements])
+    plt.tick_params(
+        axis="both",
+        which="both",
+        bottom=False,
+        top=False,
+        left=False,
+        right=False,
+        labelbottom=False,
+        labelleft=False,
+    )
+    # plt.colorbar()
+    # plt.title("%i Element MURA" % nElements)
 
     # save it
     cwd = os.getcwd()
 
     ax.set_aspect("equal")
-    plt.grid()
+    plt.axis("off")
+    # plt.grid()
     plt.savefig(
-        os.path.join(cwd, fpath + str(nElements) + fm + "MURA_frommatrix.png"), dpi=300
+        os.path.join(cwd, fpath + str(nElements) + fm + "MURA_frommatrix.png"),
+        dpi=300,
+        transparent=True,
+        format="png",
+        bbox_inches="tight",
     )
     plt.clf()
     # ------------- plot the decoder to confirm correct ---------------
     # plot decoder from matrix
     plt.figure(figsize=(8, 6))
     plt.imshow(decode, cmap=cmap, origin="lower")
-    plt.colorbar()
-    plt.title("%i Element MURA" % nElements)
+    plt.xlim([23,69])
+    plt.ylim([23,69])
+    plt.axis('off')
+
+    #plt.colorbar()
+    #plt.title("%i Element MURA" % nElements)
 
     # save it
     cwd = os.getcwd()
     plt.savefig(
-        os.path.join(cwd, fpath + str(nElements) + fm + "MURA_decode_frommatrix.png")
-    )
+        os.path.join(cwd, fpath + str(nElements) + fm + "MURA_decode_frommatrix.png"),dpi=600, transparent=True)
     plt.clf()
 
     # --------------------- if files are generated ---------------
@@ -172,10 +192,10 @@ def plot_output(
             plt.xlim([0, boxdim * nElements])
             plt.ylim([0, boxdim * nElements])
 
-        plt.grid()
+        # plt.grid()
         plt.savefig(
             os.path.join(cwd, fpath + str(nElements) + fm + "MURA_fromfile.png"),
-            transparent=True,
+            transparent=False,
         )
         plt.clf()
         # ------------- plot the decoder from the file generated ---------------
@@ -218,11 +238,9 @@ def plot_output(
 
 
 def pinhole(size, boxsize, plot=False):
-
     boxsize = boxsize / 2
     # generate file that has a box everywhere
     with open("MURA_designs/1MURA_matrix_%0.2f.txt" % (size), "w") as fp:
-
         for nx in np.arange(0, size, boxsize):
             for ny in np.arange(0, size, boxsize):
                 if (size) / nx == 2.0 and (size) / ny == 2.0:
